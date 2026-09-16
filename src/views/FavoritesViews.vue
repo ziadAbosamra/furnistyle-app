@@ -1,106 +1,114 @@
 <template>
-  <div class="container py-5">
-    <!-- Header Section -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="fw-bold mb-1" style="color: #2c2724;">My Favorites ❤️</h2>
-        <p class="text-muted mb-0 fs-6">Saved items you love</p>
-      </div>
-      <span class="badge fs-6 px-3 py-2 rounded-pill shadow-sm" style="background-color: #c5a880; color: #ffffff;">
-        {{ shopStore.favorites.length }} Items
-      </span>
+  <div class="favorites-page container py-5">
+    <div class="text-center mb-5">
+      <h1 class="fw-bold display-5" style="color: #2c2724;">My Favorite Products</h1>
+      <p class="text-muted">Here are all the items you've saved for later.</p>
     </div>
 
-    <!-- Favorites Grid (Max 3 items per row) -->
-    <div v-if="shopStore.favorites.length > 0" class="row g-4">
-      <div 
-        v-for="product in shopStore.favorites" 
-        :key="product.id" 
-        class="col-12 col-md-6 col-lg-4"
-      >
-        <div class="card h-100 border-0 rounded-4 overflow-hidden position-relative product-card" style="background-color: #ffffff; border: 1px solid #eae5d9 !important;">
+    <!-- لو مفيش منتجات في المفضلة -->
+    <div v-if="shopStore.favorites.length === 0" class="text-center py-5">
+      <div class="mb-4">
+        <i class="bi bi-heart text-muted display-1"></i>
+      </div>
+      <h3 class="fw-bold text-dark">Your favorites list is empty</h3>
+      <p class="text-muted mb-4">Explore our shop and save your favorite items to view them here.</p>
+      <router-link to="/shop" class="btn btn-dark rounded-pill px-4 py-2 fw-semibold">
+        Go to Shop
+      </router-link>
+    </div>
+
+    <!-- شبكة المنتجات المفضلة -->
+    <div class="row g-4" v-else>
+      <div class="col-xl-3 col-lg-4 col-md-6" v-for="product in shopStore.favorites" :key="product.id">
+        <div class="card h-100 shadow-sm rounded-4 overflow-hidden product-card border-0 bg-white position-relative">
           
-          <!-- Favorite Toggle Button -->
+          <!-- زر إزالة من المفضلة (القلب الممتلئ) -->
           <button 
-            @click="shopStore.toggleFavorite(product)"
-            class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 p-0 d-flex align-items-center justify-content-center"
-            style="width: 38px; height: 38px; z-index: 2; background-color: #fdfbf7; border: 1px solid #eae5d9;"
-            title="Remove from favorites"
+            @click.stop="toggleFavorite(product)" 
+            class="btn position-absolute top-0 end-0 m-3 rounded-circle p-2 shadow-sm bg-white border-0 d-flex align-items-center justify-content-center"
+            style="width: 40px; height: 40px; z-index: 10;"
           >
             <i class="bi bi-heart-fill text-danger fs-5"></i>
           </button>
 
-          <!-- Product Image -->
-          <div class="overflow-hidden" style="height: 250px; background-color: #fdfbf7;">
-            <img 
-              :src="product.images ? product.images[0] : product.image" 
-              :alt="product.name" 
-              class="card-img-top w-100 h-100 object-fit-cover" 
-            />
-          </div>
-
-          <!-- Product Body -->
-          <div class="card-body d-flex flex-column justify-content-between p-4">
-            <div>
-              <span class="badge mb-2 px-2 py-1 fw-normal" style="background-color: #f7f3eb; color: #7c746e; border: 1px solid #eae5d9;">
-                {{ product.category || 'Furniture' }}
-              </span>
-              <h5 class="card-title fw-bold text-truncate mb-2" style="color: #2c2724;">{{ product.name }}</h5>
-              <p class="card-text fw-bold fs-5 mb-3" style="color: #c5a880;">${{ product.price }}</p>
-            </div>
-
-            <div class="d-grid gap-2">
-              <button 
-                @click="shopStore.addToCart(product)" 
-                class="btn btn-primary rounded-pill fw-bold py-2 shadow-sm"
-              >
-                <i class="bi bi-cart-plus me-1"></i> Add to Cart
-              </button>
-              <router-link 
-                :to="`/product/${product.id}`" 
-                class="btn btn-outline-secondary rounded-pill btn-sm text-center py-2 fw-semibold"
-                style="border-color: #eae5d9; color: #7c746e;"
-              >
-                View Details
-              </router-link>
+          <!-- صورة المنتج -->
+          <router-link :to="`/product/${product.id}`" class="position-relative overflow-hidden bg-light d-block text-decoration-none" style="height: 240px;">
+            <img :src="product.image" :alt="product.name" class="w-100 h-100 object-fit-cover product-img">
+            <span class="badge bg-dark position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill shadow-sm small">{{ product.category }}</span>
+          </router-link>
+          
+          <!-- التفاصيل -->
+          <div class="card-body d-flex flex-column p-4">
+            <router-link :to="`/product/${product.id}`" class="text-decoration-none">
+              <h5 class="card-title fw-bold fs-6 mb-2 text-dark text-truncate">{{ product.name }}</h5>
+            </router-link>
+            <p class="card-text small mb-4 text-muted text-truncate-2" style="font-size: 0.85rem;">{{ product.description }}</p>
+            
+            <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+              <div>
+                <span class="small d-block text-muted" style="font-size: 0.75rem;">Price</span>
+                <span class="fw-bold fs-5" style="color: #c5a880;">${{ product.price }}</span>
+              </div>
+              
+              <div class="d-flex gap-2">
+                <router-link :to="`/product/${product.id}`" class="btn btn-outline-dark rounded-pill px-2 py-1 fw-semibold" style="font-size: 0.8rem;">
+                  Details
+                </router-link>
+                <button class="btn btn-primary rounded-pill px-3 py-1 fw-semibold text-white add-btn" style="background-color: #2c2724; border-color: #2c2724; font-size: 0.8rem;" @click="addToCart(product)">
+                  Add
+                </button>
+              </div>
             </div>
           </div>
-
         </div>
       </div>
-    </div>
-
-    <!-- Empty Favorites State -->
-    <div v-else class="text-center py-5 rounded-4 p-4" style="background-color: #ffffff; border: 1px solid #eae5d9;">
-      <i class="bi bi-heartbreak text-muted display-3 mb-3" style="color: #c5a880 !important;"></i>
-      <h4 class="fw-bold" style="color: #2c2724;">No Favorites Yet</h4>
-      <p class="text-muted fs-6 mb-4">Explore our luxury collection and save the items you love!</p>
-      <router-link to="/product/1" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
-        Discover Products
-      </router-link>
     </div>
   </div>
 </template>
 
-<script setup>
+<script>
 import { useShopStore } from '@/stores/shopStore'
 
-const shopStore = useShopStore()
+export default {
+  name: 'FavoritesView',
+  setup() {
+    const shopStore = useShopStore()
+    return { shopStore }
+  },
+  methods: {
+    toggleFavorite(product) {
+      this.shopStore.toggleFavorite(product)
+    },
+    addToCart(product) {
+      this.shopStore.addToCart({
+        ...product,
+        selectedColor: product.colors ? product.colors[0] : '#2c3e50',
+        quantity: 1
+      })
+      // تم مسح الـ alert تماماً من صفحة المفضلة
+    }
+  }
+}
 </script>
 
 <style scoped>
 .product-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgba(220, 210, 195, 0.2) !important;
+  transition: all 0.3s ease-in-out;
 }
-
 .product-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(197, 168, 128, 0.25) !important;
+  transform: translateY(-8px);
+  box-shadow: 0 1rem 2rem rgba(44, 39, 36, 0.08) !important;
 }
-
-.btn-outline-secondary:hover {
-  background-color: #f7f3eb !important;
-  color: #2c2724 !important;
+.product-img {
+  transition: transform 0.5s;
+}
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 </style>
