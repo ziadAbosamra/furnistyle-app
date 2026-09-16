@@ -1,0 +1,45 @@
+:root {
+  --bg-creamy: #fdfbf7;      /* خلفية كريمية دافئة ناعمة */
+  --card-creamy: #ffffff;    /* كروت بيضاء للتباين مع الخلفية */
+  --border-creamy: #eae5d9;  /* حدود بيج ناعمة جداً */
+  --text-main: #2c2724;      /* بني بني غامق ناعم للخطوط بدل الأسود الصريح */
+  --text-muted: #7c746e;     /* بني رمادي للنصوص الفرعية */
+  --accent-warm: #c5a880;    /* لون ذهبي خشب دافئ للأزرار والعناصر المهمة */
+  --btn-hover: #b3956d;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg-creamy) !important;
+  color: var(--text-main) !important;
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+  line-height: 1.6;
+}
+
+/* Creamy Overrides */
+.card {
+  background-color: var(--card-creamy) !important;
+  border: 1px solid var(--border-creamy) !important;
+  color: var(--text-main) !important;
+  box-shadow: 0 10px 30px rgba(220, 210, 195, 0.25) !important;
+}
+
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+.btn-primary {
+  background-color: var(--accent-warm) !important;
+  border-color: var(--accent-warm) !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--btn-hover) !important;
+  border-color: var(--btn-hover) !important;
+}
