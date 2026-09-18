@@ -62,7 +62,7 @@
 
     <!-- عرض الصفحات -->
     <div class="flex-grow-1">
-      <router-view />
+      <router-view :key="$route.fullPath" />
     </div>
 
     <!-- Footer الاحترافي -->
