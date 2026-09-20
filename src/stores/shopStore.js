@@ -1,116 +1,177 @@
 import { defineStore } from 'pinia'
+import { fetchProducts, fetchCategories } from '@/api/productsApi'
+import { defaultImage } from '@/data/products'
+
+const CART_KEY = 'furnistyle_cart'
+const FAVORITES_KEY = 'furnistyle_favorites'
+const USER_KEY = 'furni_user'
+
+function readStorage(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? JSON.parse(raw) : fallback
+  } catch (err) {
+    console.error(`Error reading ${key} from localStorage:`, err)
+    return fallback
+  }
+}
 
 export const useShopStore = defineStore('shop', {
   state: () => ({
-    products: [
-      { 
-        id: 1, 
-        name: 'Minimalist Modern Sofa', 
-        category: 'Living Room', 
-        description: 'Comfortable 3-seater sofa with premium durable fabric and ergonomic support designed for modern homes.',
-        material: 'Solid pine wood frame, high-density foam cushions, premium linen fabric',
-        dimensions: '210 × 90 × 85 cm (W × D × H)',
-        rating: 4.6,
-        reviewsCount: 128,
-        stock: 14,
-        warranty: '2-year manufacturer warranty',
-        price: 499, 
-        image: 'https://images.unsplash.com/photo-1616693153250-bb03055788eb?w=800&auto=format&fit=crop&q=80',
-        colors: [
-          { name: 'Navy Blue', hex: '#2c3e50' },
-          { name: 'Purple Velvet', hex: '#8e44ad' },
-          { name: 'Orange Oak', hex: '#d35400' }
-        ]
-      },
-      { 
-        id: 2, 
-        name: 'Scandinavian Wooden Dining Table', 
-        category: 'Dining', 
-        description: 'Solid oak wood table designed elegantly for warm family gatherings and long-lasting durability.',
-        material: 'Solid oak wood, matte lacquer finish',
-        dimensions: '160 × 90 × 75 cm (W × D × H)',
-        rating: 4.8,
-        reviewsCount: 76,
-        stock: 9,
-        warranty: '3-year manufacturer warranty',
-        price: 350, 
-        image: 'https://images.unsplash.com/photo-1623654816619-dd66988b63c2?w=800&auto=format&fit=crop&q=80',
-        colors: [
-          { name: 'Orange Oak', hex: '#d35400' },
-          { name: 'Gray Stone', hex: '#7f8c8d' }
-        ]
-      },
-      { 
-        id: 3, 
-        name: 'Ergonomic Executive Office Chair', 
-        category: 'Office', 
-        description: 'Sleek professional chair built for maximum comfort and posture support during long work sessions.',
-        material: 'Mesh backrest, memory foam seat, aluminum base',
-        dimensions: '65 × 65 × 115-125 cm (adjustable height)',
-        rating: 4.4,
-        reviewsCount: 203,
-        stock: 22,
-        warranty: '5-year manufacturer warranty',
-        price: 150, 
-        image: 'https://images.unsplash.com/photo-1461969539980-32974612df40?w=800&auto=format&fit=crop&q=80',
-        colors: [
-          { name: 'Teal Green', hex: '#16a085' },
-          { name: 'Dark Navy', hex: '#2c3e50' }
-        ]
-      }
-    ],
-    favorites: [],
-    cart: [],
-    currentUser: null
+    currentUser: readStorage(USER_KEY, null),
+    products: [],
+    categories: [],
+    productsLoading: false,
+    productsError: null,
+    cart: readStorage(CART_KEY, []),
+    favorites: readStorage(FAVORITES_KEY, [])
   }),
+
   getters: {
-    cartCount: (state) => state.cart.reduce((sum, item) => sum + item.quantity, 0),
-    cartTotal: (state) => state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    cartTotal: (state) =>
+      state.cart.reduce((sum, item) => sum + (Number(item.price) || 0) * item.quantity, 0),
+
+    formattedCartTotal() {
+      return this.cartTotal.toFixed(2)
+    },
+
+    cartCount: (state) => 
+      state.cart.reduce((sum, item) => sum + item.quantity, 0),
+
+    isFavorite: (state) => (productId) =>
+      state.favorites.some((p) => Number(p.id) === Number(productId))
   },
+
   actions: {
-    toggleFavorite(product) {
-      if (!this.favorites) this.favorites = []
-      const index = this.favorites.findIndex(item => item.id === product.id)
-      if (index > -1) {
-        this.favorites.splice(index, 1)
-      } else {
-        this.favorites.push(product)
+    login(userData) {
+      this.currentUser = userData
+      try {
+        localStorage.setItem(USER_KEY, JSON.stringify(userData))
+      } catch (err) {
+        console.error('Error saving user to localStorage:', err)
       }
     },
-    isInWishlist(productId) {
-      return this.favorites ? this.favorites.some(item => item.id === productId) : false
-    },
-    addToCart(cartItem) {
-      const existingIndex = this.cart.findIndex(
-        item => item.id === cartItem.id && item.selectedColor === cartItem.selectedColor
-      )
-      if (existingIndex > -1) {
-        this.cart[existingIndex].quantity += cartItem.quantity
-      } else {
-        this.cart.push(cartItem)
-      }
-    },
-    removeFromCart(id, selectedColor) {
-      this.cart = this.cart.filter(
-        item => !(item.id === id && item.selectedColor === selectedColor)
-      )
-    },
-    updateCartQuantity(id, selectedColor, quantity) {
-      const item = this.cart.find(
-        i => i.id === id && i.selectedColor === selectedColor
-      )
-      if (item) {
-        item.quantity = Math.max(1, quantity)
-      }
-    },
-    clearCart() {
-      this.cart = []
-    },
-    login(username) {
-      this.currentUser = username
-    },
+
     logout() {
       this.currentUser = null
+      try {
+        localStorage.removeItem(USER_KEY)
+      } catch (err) {
+        console.error('Error removing user from localStorage:', err)
+      }
+    },
+
+    async loadCatalog(force = false) {
+      if (this.products.length && !force) return
+      
+      this.productsLoading = true
+      this.productsError = null
+      try {
+        const [products, categories] = await Promise.all([
+          fetchProducts(),
+          fetchCategories()
+        ])
+        this.products = products || []
+        this.categories = categories || []
+      } catch (err) {
+        this.productsError = 'Could not load products. Please try again.'
+        console.error('loadCatalog error:', err)
+      } finally {
+        this.productsLoading = false
+      }
+    },
+
+    getProductById(id) {
+      return this.products.find((p) => Number(p.id) === Number(id))
+    },
+
+    addToCart(product, variant = null, quantity = 1) {
+      if (!product) return
+
+      const chosenVariant = variant ?? product.variants?.[0]
+      const lineId = `${product.id}::${chosenVariant?.hex ?? 'default'}`
+      const existing = this.cart.find((item) => item.lineId === lineId)
+
+      if (existing) {
+        existing.quantity += quantity
+      } else {
+        this.cart.push({
+          lineId,
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: chosenVariant?.image ?? defaultImage(product),
+          colorName: chosenVariant?.colorName ?? null,
+          hex: chosenVariant?.hex ?? null,
+          quantity
+        })
+      }
+      this.saveCart()
+    },
+
+    updateQuantity(lineId, delta) {
+      const item = this.cart.find((i) => i.lineId === lineId)
+      if (!item) return
+      
+      item.quantity = Math.max(1, item.quantity + delta)
+      this.saveCart()
+    },
+
+    setQuantity(lineId, newQuantity) {
+      const item = this.cart.find((i) => i.lineId === lineId)
+      if (!item) return
+
+      const qty = parseInt(newQuantity, 10)
+      item.quantity = isNaN(qty) || qty < 1 ? 1 : qty
+      this.saveCart()
+    },
+
+    removeFromCart(lineId) {
+      this.cart = this.cart.filter((item) => item.lineId !== lineId)
+      this.saveCart()
+    },
+
+    clearCart() {
+      this.cart = []
+      this.saveCart()
+    },
+
+    saveCart() {
+      try {
+        localStorage.setItem(CART_KEY, JSON.stringify(this.cart))
+      } catch (err) {
+        console.error('Error saving cart to localStorage:', err)
+      }
+    },
+
+    toggleFavorite(productOrId) {
+      if (!productOrId) return
+
+      const targetId = typeof productOrId === 'object' ? productOrId.id : Number(productOrId)
+      const idx = this.favorites.findIndex((p) => Number(p.id) === Number(targetId))
+
+      if (idx >= 0) {
+        this.favorites.splice(idx, 1)
+      } else {
+        const productToAdd = typeof productOrId === 'object' ? productOrId : this.getProductById(targetId)
+        if (productToAdd) {
+          this.favorites.push(productToAdd)
+        }
+      }
+      this.saveFavorites()
+    },
+
+    clearFavorites() {
+      this.favorites = []
+      this.saveFavorites()
+    },
+
+    saveFavorites() {
+      try {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(this.favorites))
+      } catch (err) {
+        console.error('Error saving favorites to localStorage:', err)
+      }
     }
   }
 })

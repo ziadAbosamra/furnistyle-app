@@ -25,6 +25,7 @@
             <ul class="nav nav-pills nav-fill mb-4 p-1 rounded-pill bg-light" role="tablist">
               <li class="nav-item">
                 <button 
+                  type="button"
                   class="nav-link rounded-pill fw-semibold py-2 transition-all" 
                   :class="{ 'active bg-dark text-white shadow-sm': isLogin, 'text-muted': !isLogin }"
                   @click="isLogin = true"
@@ -34,6 +35,7 @@
               </li>
               <li class="nav-item">
                 <button 
+                  type="button"
                   class="nav-link rounded-pill fw-semibold py-2 transition-all" 
                   :class="{ 'active bg-dark text-white shadow-sm': !isLogin, 'text-muted': isLogin }"
                   @click="isLogin = false"
@@ -47,17 +49,35 @@
             <form @submit.prevent="handleSubmit">
               <div v-if="!isLogin" class="mb-3">
                 <label class="form-label small fw-bold text-secondary">Full Name</label>
-                <input v-model="name" type="text" class="form-control rounded-pill py-2 px-3 border-light bg-light" placeholder="Adham Abosamra" required />
+                <input 
+                  v-model.trim="name" 
+                  type="text" 
+                  class="form-control rounded-pill py-2 px-3 border-light bg-light" 
+                  placeholder="Adham Abosamra" 
+                  required 
+                />
               </div>
 
               <div class="mb-3">
                 <label class="form-label small fw-bold text-secondary">Email Address</label>
-                <input v-model="email" type="email" class="form-control rounded-pill py-2 px-3 border-light bg-light" placeholder="adhame764@gmail.com" required />
+                <input 
+                  v-model.trim="email" 
+                  type="email" 
+                  class="form-control rounded-pill py-2 px-3 border-light bg-light" 
+                  placeholder="adhame764@gmail.com" 
+                  required 
+                />
               </div>
 
               <div class="mb-4">
                 <label class="form-label small fw-bold text-secondary">Password</label>
-                <input v-model="password" type="password" class="form-control rounded-pill py-2 px-3 border-light bg-light" placeholder="••••••••" required />
+                <input 
+                  v-model="password" 
+                  type="password" 
+                  class="form-control rounded-pill py-2 px-3 border-light bg-light" 
+                  placeholder="••••••••" 
+                  required 
+                />
               </div>
 
               <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 fw-bold shadow-sm mb-3 auth-btn">
@@ -75,28 +95,35 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useShopStore } from '@/stores/shopStore'
 
 const router = useRouter()
-const isLogin = ref(true)
+const shopStore = useShopStore()
 
+const isLogin = ref(true)
 const name = ref('')
 const email = ref('')
 const password = ref('')
 
 const handleSubmit = () => {
-  // حفظ بيانات المستخدم الدائمة في الـ localStorage لكي تظهر في البروفايل
+  let resolvedName = 'Adham Abosamra'
+  
+  if (!isLogin.value && name.value) {
+    resolvedName = name.value
+  } else if (email.value) {
+    resolvedName = email.value.split('@')[0]
+  }
+
   const userData = {
-    name: isLogin.value ? (email.value ? email.value.split('@')[0] : 'Adham Abosamra') : name.value,
+    name: resolvedName,
     email: email.value || 'adhame764@gmail.com'
   }
-  
-  localStorage.setItem('furni_user', JSON.stringify(userData))
-  
-  // تفعيل حالة الجلسة الحالية (بحيث لو الموقع اتحدث يطلب تسجيل دخول من جديد)
-  sessionStorage.setItem('isLoggedIn', 'true')
-  
-  // الانتقال للصفحة الرئيسية
-  router.push('/home')
+
+  // تحديث الـ Store بالبيانات ورسخ تسجيل الدخول
+  shopStore.login(userData)
+
+  // التوجيه للرئيسية
+  router.push('/')
 }
 </script>
 

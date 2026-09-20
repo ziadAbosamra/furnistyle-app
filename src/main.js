@@ -4,13 +4,15 @@ import App from './App.vue'
 import router from './router'
 import './assets/base.css'
 
-// Bootstrap CSS & Icons
+// Bootstrap CSS, JS & Icons
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 const app = createApp(App)
+const pinia = createPinia()
 
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')
