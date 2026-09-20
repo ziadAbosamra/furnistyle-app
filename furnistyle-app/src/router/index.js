@@ -1,41 +1,39 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '@/views/HomeView.vue'
-import ShopView from '@/views/ShopView.vue'
-import ProductDetailsView from '@/views/ProductDetailsView.vue'
-import CartView from '@/views/CartView.vue'
-import FavoritesViews from '@/views/FavoritesViews.vue'
+
+// استيراد الصفحات
+import ProductShowcaseView from '@/views/ProductShowcaseView.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    redirect: '/showcase/living-room'
   },
   {
-    path: '/shop',
-    name: 'shop',
-    component: ShopView
+    path: '/showcase/:id?',
+    name: 'product-showcase',
+    component: ProductShowcaseView,
+    props: true
   },
   {
-    path: '/product/:id',
-    name: 'product-details',
-    component: ProductDetailsView
-  },
-  {
-    path: '/cart',
-    name: 'cart',
-    component: CartView
-  },
-  {
-    path: '/favorites',
-    name: 'favorites',
-    component: FavoritesViews
+    path: '/:pathMatch(.*)*',
+    redirect: '/showcase/living-room'
   }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+  scrollBehavior() {
+    return { top: 0 }
+  }
+})
+
+/* 
+  Navigation Guard محدّث يتوافق مع معايير Vue Router 4
+  تم إزالة next() لمنع ظهور تحذير [VUE_ROUTER_R0025]
+*/
+router.beforeEach((to, from) => {
+  // عند التوجيه مستقبلاً استخدم return بدلاً من next()
 })
 
 export default router

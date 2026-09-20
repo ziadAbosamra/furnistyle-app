@@ -80,12 +80,16 @@ export default {
       this.shopStore.toggleFavorite(product)
     },
     addToCart(product) {
+      // التحقق من الألوان المتاحة للمنتج لتحديد اللون الافتراضي بشكل صحيح
+      const defaultColor = product.colors && product.colors.length > 0 ? product.colors[0].name : 'Default'
+      const defaultImage = product.colors && product.colors.length > 0 ? product.colors[0].image : product.image
+
       this.shopStore.addToCart({
         ...product,
-        selectedColor: product.colors ? product.colors[0] : '#2c3e50',
+        image: defaultImage,
+        selectedColor: defaultColor,
         quantity: 1
       })
-      // تم مسح الـ alert تماماً من صفحة المفضلة
     }
   }
 }
@@ -107,8 +111,9 @@ export default {
 }
 .text-truncate-2 {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+
   -webkit-box-orient: vertical;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
