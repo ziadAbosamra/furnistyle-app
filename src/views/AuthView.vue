@@ -28,7 +28,7 @@
                   type="button"
                   class="nav-link rounded-pill fw-semibold py-2 transition-all" 
                   :class="{ 'active bg-dark text-white shadow-sm': isLogin, 'text-muted': !isLogin }"
-                  @click="isLogin = true"
+                  @click="switchTab(true)"
                 >
                   Login
                 </button>
@@ -38,12 +38,17 @@
                   type="button"
                   class="nav-link rounded-pill fw-semibold py-2 transition-all" 
                   :class="{ 'active bg-dark text-white shadow-sm': !isLogin, 'text-muted': isLogin }"
-                  @click="isLogin = false"
+                  @click="switchTab(false)"
                 >
                   Register
                 </button>
               </li>
             </ul>
+
+            <!-- Error Message -->
+            <div v-if="errorMsg" class="alert alert-danger rounded-pill text-center small py-2 mb-3">
+              {{ errorMsg }}
+            </div>
 
             <!-- Form -->
             <form @submit.prevent="handleSubmit">
@@ -53,7 +58,7 @@
                   v-model.trim="name" 
                   type="text" 
                   class="form-control rounded-pill py-2 px-3 border-light bg-light" 
-                  placeholder="Adham Abosamra" 
+                  placeholder="Type your name" 
                   required 
                 />
               </div>
@@ -64,7 +69,7 @@
                   v-model.trim="email" 
                   type="email" 
                   class="form-control rounded-pill py-2 px-3 border-light bg-light" 
-                  placeholder="adhame764@gmail.com" 
+                  placeholder="Type your email" 
                   required 
                 />
               </div>
@@ -104,26 +109,31 @@ const isLogin = ref(true)
 const name = ref('')
 const email = ref('')
 const password = ref('')
+const errorMsg = ref('')
+
+// عند التبديل بين Login و Register، نمسح أي رسالة خطأ قديمة
+const switchTab = (loginMode) => {
+  isLogin.value = loginMode
+  errorMsg.value = ''
+}
 
 const handleSubmit = () => {
-  let resolvedName = 'Adham Abosamra'
-  
-  if (!isLogin.value && name.value) {
-    resolvedName = name.value
-  } else if (email.value) {
-    resolvedName = email.value.split('@')[0]
+  errorMsg.value = ''
+
+  try {
+    if (isLogin.value) {
+      // تسجيل الدخول: نقارن الإيميل والباسورد مع قائمة المستخدمين المخزنة
+      shopStore.authenticateUser({ email: email.value, password: password.value })
+    } else {
+      // إنشاء حساب جديد: نتأكد إن الإيميل مش مستخدم قبل كده ونضيفه للقائمة
+      shopStore.registerUser({ name: name.value, email: email.value, password: password.value })
+    }
+
+    // التوجيه للرئيسية بعد نجاح العملية
+    router.push('/')
+  } catch (err) {
+    errorMsg.value = err.message
   }
-
-  const userData = {
-    name: resolvedName,
-    email: email.value || 'adhame764@gmail.com'
-  }
-
-  // تحديث الـ Store بالبيانات ورسخ تسجيل الدخول
-  shopStore.login(userData)
-
-  // التوجيه للرئيسية
-  router.push('/')
 }
 </script>
 

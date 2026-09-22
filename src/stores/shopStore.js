@@ -5,6 +5,7 @@ import { defaultImage } from '@/data/products'
 const CART_KEY = 'furnistyle_cart'
 const FAVORITES_KEY = 'furnistyle_favorites'
 const USER_KEY = 'furni_user'
+const USERS_KEY = 'furnistyle_users'
 
 function readStorage(key, fallback) {
   try {
@@ -59,6 +60,43 @@ export const useShopStore = defineStore('shop', {
       } catch (err) {
         console.error('Error removing user from localStorage:', err)
       }
+    },
+
+    registerUser({ name, email, password }) {
+      const users = readStorage(USERS_KEY, [])
+
+      const alreadyExists = users.some(
+        (u) => u.email.toLowerCase() === email.toLowerCase()
+      )
+      if (alreadyExists) {
+        throw new Error('يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل')
+      }
+
+      const newUser = { name, email, password }
+      users.push(newUser)
+
+      try {
+        localStorage.setItem(USERS_KEY, JSON.stringify(users))
+      } catch (err) {
+        console.error('Error saving users list to localStorage:', err)
+      }
+
+      // تسجيل الدخول تلقائيًا بعد إنشاء الحساب
+      this.login({ name, email })
+    },
+
+    authenticateUser({ email, password }) {
+      const users = readStorage(USERS_KEY, [])
+
+      const found = users.find(
+        (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+      )
+
+      if (!found) {
+        throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+      }
+
+      this.login({ name: found.name, email: found.email })
     },
 
     async loadCatalog(force = false) {
