@@ -93,7 +93,7 @@ export const useShopStore = defineStore('shop', {
       )
 
       if (!found) {
-        throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+        throw new Error('The email or the password is uncorrect')
       }
 
       this.login({ name: found.name, email: found.email })
