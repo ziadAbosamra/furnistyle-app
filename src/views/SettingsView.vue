@@ -8,7 +8,7 @@
           <div class="d-flex align-items-center justify-content-between mb-4 pb-3 border-bottom">
             <div class="d-flex align-items-center gap-2">
               <i class="bi bi-gear-fill fs-3" style="color: #c5a880;"></i>
-              <h3 class="fw-bold mb-0" style="color: #2c2724;">Account Settings</h3>
+              <h3 class="fw-bold mb-0" style="color: var(--text-main);">Account Settings</h3>
             </div>
             <span class="badge bg-light text-muted border px-3 py-2 rounded-pill small">System Preferences</span>
           </div>
@@ -61,7 +61,7 @@
               <label class="form-check-label fw-semibold small text-dark m-0 cursor-pointer" for="darkModeSwitch">
                 Enable Dark Mode UI
               </label>
-              <input v-model="form.darkMode" class="form-check-input custom-switch m-0" type="checkbox" role="switch" id="darkModeSwitch">
+              <input v-model="form.darkMode" @change="handleDarkModeToggle" class="form-check-input custom-switch m-0" type="checkbox" role="switch" id="darkModeSwitch">
             </div>
 
             <hr class="my-4 text-muted opacity-25">
@@ -137,6 +137,17 @@ onMounted(() => {
   loadStoredData()
 })
 
+// تحديث الـ Dark Mode لحظياً عند تغيير الزر
+const handleDarkModeToggle = () => {
+  if (form.darkMode) {
+    document.body.classList.add('dark-mode-theme')
+    localStorage.setItem('furni_theme', 'dark')
+  } else {
+    document.body.classList.remove('dark-mode-theme')
+    localStorage.setItem('furni_theme', 'light')
+  }
+}
+
 const saveSettings = () => {
   const fullName = `${form.firstName} ${form.lastName}`.trim()
   
@@ -151,11 +162,7 @@ const saveSettings = () => {
     darkMode: form.darkMode
   }))
 
-  if (form.darkMode) {
-    document.body.classList.add('dark-mode-theme')
-  } else {
-    document.body.classList.remove('dark-mode-theme')
-  }
+  handleDarkModeToggle()
 
   form.newPassword = ''
   successMessage.value = 'Settings updated successfully!'
@@ -167,13 +174,7 @@ const saveSettings = () => {
 const resetForm = () => {
   loadStoredData()
   form.newPassword = ''
-  
-  // Re-apply original dark mode setting onto body
-  if (form.darkMode) {
-    document.body.classList.add('dark-mode-theme')
-  } else {
-    document.body.classList.remove('dark-mode-theme')
-  }
+  handleDarkModeToggle()
 }
 </script>
 

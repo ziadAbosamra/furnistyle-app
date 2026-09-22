@@ -157,17 +157,12 @@ const scrollToTop = () => {
 }
 
 onMounted(() => {
-  // Initialize dark mode theme if saved in settings
-  const savedSettings = localStorage.getItem('furni_settings')
-  if (savedSettings) {
-    try {
-      const parsed = JSON.parse(savedSettings)
-      if (parsed.darkMode) {
-        document.body.classList.add('dark-mode-theme')
-      }
-    } catch (e) {
-      console.error('Failed to parse settings from localStorage:', e)
-    }
+  // تفعيل الثيم المحفوظ في أول تحميل للتطبيق
+  const savedTheme = localStorage.getItem('furni_theme')
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode-theme')
+  } else {
+    document.body.classList.remove('dark-mode-theme')
   }
 })
 </script>
@@ -256,8 +251,10 @@ body.dark-mode-theme .card {
 }
 
 body.dark-mode-theme .dropdown-menu {
-  background-color: #272320 !important;
-  border-color: #332e2a !important;
+  body.dark-mode-theme .dropdown-menu {
+    background-color: #272320 !important;
+    border-color: #332e2a !important;
+  }
 }
 
 body.dark-mode-theme .dropdown-item {
