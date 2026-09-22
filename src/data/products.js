@@ -12,7 +12,7 @@ export const products = [
     id: 1,
     name: 'Minimalist Modern Sofa',
     category: 'living-room',
-    price: 369,
+    price: 2250,
     description: 'Comfortable 3-seater sofa with premium durable fabric and ergonomic support.',
     featured: true,
     variants: [
@@ -37,7 +37,7 @@ export const products = [
     id: 2,
     name: 'Curved 7 Seater Sofa Set for Living Room',
     category: 'living-room',
-    price: 550,
+    price: 5499,
     description: 'Deep cushioned seats and supportive backrests offer excellent comfort for daily lounging or hosting guests.',
     featured: true,
     variants: [
@@ -57,7 +57,7 @@ export const products = [
     id: 3,
     name: '7 U-Shaped Sofa Living Room Designs for a Cozy',
     category: 'living-room',
-    price: 650,
+    price: 6850,
     description: 'Deep cushioned seats and supportive backrests offer excellent comfort for daily lounging or hosting guests.',
     featured: true,
     variants: [
@@ -77,7 +77,7 @@ export const products = [
     id: 101,
     name: 'Mid-Century Modern Dining Room Ideas - Olive Decor',
     category: 'dining',
-    price: 280,
+    price: 2450,
     description: 'Create a cozy, high-end look with these mid-century modern dining room decor ideas. This organic modern space features olive green boucle chairs, a walnut wood table, and vertical wood slat wall paneling. Perfect earthy aesthetic inspiration for your next home renovation or remodel project!',
     featured: true,
     variants: [
@@ -97,7 +97,7 @@ export const products = [
     id: 10,
     name: 'office',
     category: 'office',
-    price: 280,
+    price: 980,
     description: 'Create a warm and inviting dining space with timeless elegance ✨ This beautifully crafted round dining set blends natural wood textures with soft neutral tones, creating the perfect balance of comfort and style. Ideal for modern homes, its minimalist design adds sophistication while keeping your space cozy and functional. Upgrade your dining experience with furniture that brings people together in style 🤍',
     featured: false,
     variants: [
@@ -113,11 +113,11 @@ export const products = [
       }
     ]
   },
-    {
+  {
     id: 20,
     name: 'Stylish Wooden Lighting for Modern Homes',
     category: 'lightinge',
-    price: 140,
+    price: 580,
     description: 'Bring warmth, natural beauty, and modern elegance into your home with stylish wooden lighting ideas.',
     featured: true,
     variants: [
@@ -133,11 +133,11 @@ export const products = [
       }
     ]
   },
-     {
+  {
     id: 21,
     name: 'Luxury Bedroom Design Ideas for a Cozy Modern Retreat ✨',
     category: 'bedroom',
-    price: 840,
+    price: 2100,
     description: 'Transform your bedroom into a luxury sanctuary! 🛏️ Save this stunning design featuring a plush upholstered bed, ambient lighting, and elegant modern decor',
     featured: true,
     variants: [
@@ -157,7 +157,7 @@ export const products = [
     id: 210,
     name: 'storage',
     category: 'storage',
-    price: 840,
+    price: 3720,
     description: 'Avenue Home Décor - Luxury Interior Design ❤️',
     featured: true,
     variants: [
@@ -177,7 +177,7 @@ export const products = [
     id: 102,
     name: 'dining space with timeless elegance',
     category: 'dining',
-    price: 280,
+    price: 3280,
     description: 'Create a warm and inviting dining space with timeless elegance ✨ This beautifully crafted round dining set blends natural wood textures with soft neutral tones, creating the perfect balance of comfort and style. Ideal for modern homes, its minimalist design adds sophistication while keeping your space cozy and functional. Upgrade your dining experience with furniture that brings people together in style 🤍',
     featured: false,
     variants: [

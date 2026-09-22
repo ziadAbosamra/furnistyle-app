@@ -37,16 +37,17 @@
           <!-- Image Thumbnails -->
           <div v-if="product.variants?.length" class="d-flex gap-3 mt-3 justify-content-center flex-wrap">
             <button
-              v-for="variant in product.variants"
-              :key="variant.hex + variant.colorName"
+              v-for="(variant, idx) in product.variants"
+              :key="idx"
               @click="selectedVariant = variant"
               class="thumb-btn p-0 border-0 bg-transparent"
               :aria-label="`View ${variant.colorName}`"
+              type="button"
             >
               <img
                 :src="variant.image"
                 class="rounded-3"
-                :class="selectedVariant?.hex === variant.hex ? 'thumb-active' : 'thumb-inactive'"
+                :class="selectedVariant === variant ? 'thumb-active' : 'thumb-inactive'"
               />
             </button>
           </div>
@@ -62,38 +63,51 @@
         <h3 class="fw-bold mb-4" style="color: #c5a880;">${{ product.price }}</h3>
         <p class="fs-6 mb-4 text-secondary leading-relaxed">{{ product.description }}</p>
 
-        <!-- Color Swatches -->
+        <!-- Color / Style Selection -->
         <div v-if="product.variants?.length" class="mb-4">
           <label class="form-label fw-semibold d-block text-dark mb-2">
             Color / Style: <span class="fw-bold text-dark">{{ selectedVariant?.colorName || 'Default' }}</span>
           </label>
-          <div class="d-flex gap-3 flex-wrap align-items-center">
+          <div class="d-flex gap-2 flex-wrap align-items-center">
             <button
-              v-for="variant in product.variants"
-              :key="variant.hex + variant.colorName"
+              v-for="(variant, idx) in product.variants"
+              :key="idx"
               @click="selectedVariant = variant"
-              class="swatch-btn rounded-circle"
-              :class="selectedVariant?.hex === variant.hex ? 'swatch-active' : 'swatch-inactive'"
-              :style="{ backgroundColor: variant.hex }"
+              class="modern-variant-btn"
+              :class="{ 'active': selectedVariant === variant }"
               :title="variant.colorName"
-              :aria-label="`Select ${variant.colorName}`"
-            ></button>
+              type="button"
+            >
+              <!-- عرض صورة مصغرة إذا كانت زاوية عرض (API) -->
+              <img 
+                v-if="variant.isView || !variant.hex" 
+                :src="variant.image" 
+                :alt="variant.colorName" 
+                class="variant-img-thumb" 
+              />
+              <!-- عرض خيار اللون إذا كان منتج محلي بتصنيفات ألوان -->
+              <span 
+                v-else 
+                class="variant-color-swatch" 
+                :style="{ backgroundColor: variant.hex }"
+              ></span>
+            </button>
           </div>
         </div>
 
         <!-- Quantity & Action Buttons -->
         <div class="d-flex flex-wrap gap-3 align-items-center mb-4">
           <div class="input-group rounded-pill overflow-hidden border shadow-sm" style="width: 130px;">
-            <button @click="quantity > 1 ? quantity-- : null" class="btn btn-light px-3 border-0">-</button>
+            <button @click="quantity > 1 ? quantity-- : null" class="btn btn-light px-3 border-0" type="button">-</button>
             <span class="form-control text-center fw-bold bg-white border-0 py-2">{{ quantity }}</span>
-            <button @click="quantity++" class="btn btn-light px-3 border-0">+</button>
+            <button @click="quantity++" class="btn btn-light px-3 border-0" type="button">+</button>
           </div>
 
-          <button @click="addToCart" class="btn btn-dark btn-lg flex-grow-1 rounded-pill fw-bold shadow-sm main-action-btn">
+          <button @click="addToCart" class="btn btn-dark btn-lg flex-grow-1 rounded-pill fw-bold shadow-sm main-action-btn" type="button">
             <i class="bi bi-cart-plus me-2"></i> Add to Cart
           </button>
 
-          <button @click="toggleFavorite" class="btn btn-outline-danger btn-lg rounded-circle p-0 fav-btn" title="Toggle Favorite">
+          <button @click="toggleFavorite" class="btn btn-outline-danger btn-lg rounded-circle p-0 fav-btn" title="Toggle Favorite" type="button">
             <i :class="isFavorite ? 'bi bi-heart-fill text-danger' : 'bi bi-heart'"></i>
           </button>
         </div>
@@ -150,7 +164,9 @@ function resetForProduct() {
 }
 
 onMounted(async () => {
-  await shopStore.loadCatalog()
+  if (typeof shopStore.loadCatalog === 'function') {
+    await shopStore.loadCatalog()
+  }
   resetForProduct()
 })
 
@@ -231,21 +247,43 @@ function toggleFavorite() {
   opacity: 1;
 }
 
-.swatch-btn {
-  width: 38px;
-  height: 38px;
+.modern-variant-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  background-color: #ffffff;
+  padding: 3px;
   cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
 }
 
-.swatch-active {
-  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #2c2724;
-  transform: scale(1.1);
+.modern-variant-btn:hover {
+  border-color: #9ca3af;
+  transform: translateY(-2px);
 }
 
-.swatch-inactive:hover {
-  transform: scale(1.1);
+.modern-variant-btn.active {
+  border-color: #2c2724;
+  box-shadow: 0 4px 12px rgba(44, 39, 36, 0.2);
+  transform: scale(1.06);
+}
+
+.variant-img-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.variant-color-swatch {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
 }
 
 .main-action-btn {
