@@ -69,7 +69,7 @@ export const useShopStore = defineStore('shop', {
         (u) => u.email.toLowerCase() === email.toLowerCase()
       )
       if (alreadyExists) {
-        throw new Error('يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل')
+        throw new Error('there is an already an account ')
       }
 
       const newUser = { name, email, password }
